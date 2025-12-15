@@ -1,0 +1,377 @@
+# Cursor AI Rules for University Health Center App
+
+## Project Context
+You are working on a cross-platform Flutter app for university health center appointment booking with Firebase backend.
+
+## Code Style & Structure
+
+### Flutter Architecture
+- Use **Clean Architecture** with feature-based structure
+- Separate code into: data, domain, and presentation layers
+- Follow the project structure in `lib/` directory
+- Use **Repository Pattern** for data access
+- Implement **Provider/Riverpod** for state management
+
+### Naming Conventions
+- Use `snake_case` for file names: `appointment_screen.dart`
+- Use `PascalCase` for class names: `AppointmentScreen`
+- Use `camelCase` for variables and methods: `bookAppointment()`
+- Prefix private members with underscore: `_privateMethod()`
+- Use descriptive names: `appointmentRepository` not `repo`
+
+### File Organization
+```
+feature/
+├── data/
+│   ├── models/
+│   ├── repositories/
+│   └── datasources/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
+└── presentation/
+    ├── screens/
+    ├── widgets/
+    └── providers/
+```
+
+## Firebase Integration
+
+### Firestore Best Practices
+- Always use **typed models** with `fromJson()` and `toJson()`
+- Add null safety checks for all Firestore data
+- Use **StreamBuilder** for real-time data
+- Implement proper error handling with try-catch
+- Use **batch writes** for multiple operations
+- Add indexes for commonly queried fields
+
+### Example Firestore Query
+```dart
+// GOOD ✓
+Future<List<Appointment>> getUpcomingAppointments(String userId) async {
+  try {
+    final snapshot = await _firestore
+        .collection('appointments')
+        .where('userId', isEqualTo: userId)
+        .where('appointmentDate', isGreaterThan: DateTime.now())
+        .orderBy('appointmentDate')
+        .get();
+    
+    return snapshot.docs
+        .map((doc) => Appointment.fromJson(doc.data()))
+        .toList();
+  } catch (e) {
+    throw AppointmentException('Failed to fetch appointments: $e');
+  }
+}
+
+// BAD ✗
+var appointments = await firestore.collection('appointments').get();
+```
+
+### Firebase Cloud Messaging (FCM)
+- Initialize FCM in `main.dart`
+- Request notification permissions on first launch
+- Handle foreground, background, and terminated states
+- Store FCM tokens in user documents
+- Use `flutter_local_notifications` for local scheduling
+
+```dart
+// Initialize FCM
+Future<void> setupFCM() async {
+  final messaging = FirebaseMessaging.instance;
+  
+  // Request permission
+  await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  
+  // Get token
+  final token = await messaging.getToken();
+  await _saveTokenToFirestore(token);
+  
+  // Handle messages
+  FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+  FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
+}
+```
+
+## Security Rules
+
+### Always Follow These Security Practices
+- **Never expose Firebase API keys** in public repositories
+- Store sensitive data in `.env` files (use `flutter_dotenv`)
+- Implement **Firestore Security Rules** for all collections
+- Validate user roles before sensitive operations
+- Use **Firebase Auth** for all authenticated requests
+- Encrypt sensitive health data before storing
+
+### Example Security Rule
+```javascript
+// Firestore Security Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Appointments - users can only see their own
+    match /appointments/{appointmentId} {
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'doctor']);
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && 
+                               (resource.data.userId == request.auth.uid ||
+                                get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+  }
+}
+```
+
+## Error Handling
+
+### Custom Exceptions
+```dart
+// Create custom exceptions for different error types
+class AppException implements Exception {
+  final String message;
+  final String? code;
+  
+  AppException(this.message, [this.code]);
+  
+  @override
+  String toString() => message;
+}
+
+class NetworkException extends AppException {
+  NetworkException(String message) : super(message, 'network_error');
+}
+
+class AuthenticationException extends AppException {
+  AuthenticationException(String message) : super(message, 'auth_error');
+}
+```
+
+### Error Handling Pattern
+```dart
+// Always wrap Firebase calls in try-catch
+try {
+  await _repository.bookAppointment(appointment);
+  state = AsyncValue.data('Appointment booked successfully');
+} on FirebaseException catch (e) {
+  state = AsyncValue.error('Firebase error: ${e.message}', StackTrace.current);
+} on NetworkException catch (e) {
+  state = AsyncValue.error('Network error: ${e.message}', StackTrace.current);
+} catch (e) {
+  state = AsyncValue.error('Unexpected error: $e', StackTrace.current);
+}
+```
+
+## UI/UX Guidelines
+
+### Responsive Design
+- Use **MediaQuery** for responsive layouts
+- Support both portrait and landscape orientations
+- Test on multiple screen sizes (phone, tablet, web)
+- Use **LayoutBuilder** for adaptive widgets
+
+### Accessibility
+- Add **semantic labels** to all interactive widgets
+- Ensure color contrast ratio ≥ 4.5:1
+- Support screen readers
+- Make touch targets ≥ 48x48 pixels
+
+### Loading States
+```dart
+// Always show loading, error, and empty states
+Widget build(BuildContext context) {
+  return appointmentsAsync.when(
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (error, stack) => ErrorWidget(message: error.toString()),
+    data: (appointments) {
+      if (appointments.isEmpty) {
+        return const EmptyStateWidget(message: 'No appointments found');
+      }
+      return AppointmentsList(appointments: appointments);
+    },
+  );
+}
+```
+
+## Performance Optimization
+
+### Best Practices
+- Use **const constructors** wherever possible
+- Implement **pagination** for large lists
+- Use **cached_network_image** for images
+- Avoid rebuilding widgets unnecessarily
+- Use **ListView.builder** instead of ListView
+- Implement **lazy loading** for data
+
+```dart
+// GOOD ✓ - Uses const and builder
+ListView.builder(
+  itemCount: appointments.length,
+  itemBuilder: (context, index) {
+    return const AppointmentCard(appointment: appointments[index]);
+  },
+)
+
+// BAD ✗ - Creates all widgets at once
+ListView(
+  children: appointments.map((a) => AppointmentCard(appointment: a)).toList(),
+)
+```
+
+## Testing Requirements
+
+### Write Tests for All Features
+- **Unit tests** for repositories and use cases
+- **Widget tests** for UI components
+- **Integration tests** for critical flows
+
+```dart
+// Example unit test
+test('should book appointment successfully', () async {
+  // Arrange
+  final appointment = Appointment(...);
+  when(mockRepository.bookAppointment(appointment))
+      .thenAnswer((_) async => Right(appointment));
+  
+  // Act
+  final result = await useCase.call(appointment);
+  
+  // Assert
+  expect(result.isRight(), true);
+  verify(mockRepository.bookAppointment(appointment)).called(1);
+});
+```
+
+## Code Documentation
+
+### Always Add Comments for
+- Complex business logic
+- Firebase queries with multiple conditions
+- Public APIs and methods
+- Non-obvious code patterns
+
+```dart
+/// Books an appointment for the user
+/// 
+/// Validates availability, checks for conflicts, and sends
+/// confirmation notification via FCM
+/// 
+/// Throws [AppointmentException] if slot is unavailable
+/// Throws [NetworkException] if connection fails
+Future<void> bookAppointment(Appointment appointment) async {
+  // Implementation
+}
+```
+
+## Notifications Implementation
+
+### Setup Reminder System
+```dart
+class NotificationService {
+  // Schedule local notification for appointment reminder
+  Future<void> scheduleAppointmentReminder(Appointment appointment) async {
+    final reminderTime = appointment.appointmentDate.subtract(
+      const Duration(hours: 1),
+    );
+    
+    await _localNotifications.zonedSchedule(
+      appointment.id.hashCode,
+      'Appointment Reminder',
+      'Your appointment is in 1 hour',
+      tz.TZDateTime.from(reminderTime, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'appointment_reminders',
+          'Appointment Reminders',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+}
+```
+
+## Git Commit Messages
+
+### Follow Conventional Commits
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `refactor:` - Code refactoring
+- `docs:` - Documentation changes
+- `test:` - Adding tests
+- `chore:` - Maintenance tasks
+
+**Examples:**
+- `feat: add appointment booking screen`
+- `fix: resolve FCM token refresh issue`
+- `refactor: improve appointment repository structure`
+
+## Environment Setup
+
+### Required Files
+```yaml
+# .env file
+FIREBASE_API_KEY=your_api_key
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_APP_ID=your_app_id
+```
+
+### Dependencies Management
+- Keep `pubspec.yaml` organized by category
+- Use latest stable versions
+- Document why each package is needed
+- Remove unused dependencies
+
+## Common Pitfalls to Avoid
+
+❌ **Do not:**
+- Store sensitive data in SharedPreferences
+- Use DateTime.now() for Firestore timestamps (use FieldValue.serverTimestamp())
+- Ignore null safety
+- Mix business logic with UI code
+- Hardcode strings (use localization)
+- Forget to dispose controllers and streams
+
+✅ **Do:**
+- Use proper state management
+- Implement offline support with Firestore persistence
+- Handle all async operations with proper error handling
+- Follow SOLID principles
+- Write clean, readable code
+- Add proper logging for debugging
+
+## Code Review Checklist
+
+Before committing, ensure:
+- [ ] No hardcoded values or API keys
+- [ ] All strings are localized
+- [ ] Error handling is implemented
+- [ ] Tests are written and passing
+- [ ] Code follows project structure
+- [ ] Security rules are updated if needed
+- [ ] Documentation is updated
+- [ ] No console.log or print statements in production code
+- [ ] Null safety is handled properly
+- [ ] Performance is optimized
+
+---
+
+**Remember:** Write code as if the person maintaining it is a violent psychopath who knows where you live! 😄
+
+Keep code clean, well-documented, and follow these rules consistently.

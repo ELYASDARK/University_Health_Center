@@ -1,0 +1,164 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../shared/models/appointment_model.dart';
+
+/// Repository for managing appointments
+class AppointmentRepository {
+  final FirebaseFirestore _firestore;
+
+  AppointmentRepository({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  /// Book a new appointment
+  Future<AppointmentModel> bookAppointment(AppointmentModel appointment) async {
+    try {
+      final docRef = await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .add(appointment.toJson());
+
+      return appointment.copyWith(id: docRef.id);
+    } catch (e) {
+      throw AppointmentException('Failed to book appointment: $e');
+    }
+  }
+
+  /// Get user's appointments
+  Future<List<AppointmentModel>> getUserAppointments(String userId) async {
+    try {
+      // Query without orderBy to avoid requiring composite index
+      final snapshot = await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      // Sort in app code instead of Firestore query
+      final appointments = snapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
+          .toList();
+      
+      // Sort by appointment date, most recent first
+      appointments.sort((a, b) => b.appointmentDate.compareTo(a.appointmentDate));
+      
+      return appointments;
+    } catch (e) {
+      throw AppointmentException('Failed to fetch appointments: $e');
+    }
+  }
+
+  /// Get upcoming appointments for a user
+  Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
+    try {
+      final now = DateTime.now();
+      // Simplified query to avoid requiring composite index
+      // Only query by userId and appointmentDate, then filter by status in code
+      final snapshot = await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .where('userId', isEqualTo: userId)
+          .where('appointmentDate', isGreaterThan: Timestamp.fromDate(now))
+          .orderBy('appointmentDate')
+          .get();
+
+      // Filter by status in the app to avoid composite index requirement
+      return snapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
+          .where((appointment) => appointment.status == AppConstants.statusScheduled)
+          .toList();
+    } catch (e) {
+      throw AppointmentException('Failed to fetch upcoming appointments: $e');
+    }
+  }
+
+  /// Get appointment by ID
+  Future<AppointmentModel?> getAppointmentById(String id) async {
+    try {
+      final doc = await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .doc(id)
+          .get();
+
+      if (!doc.exists) return null;
+
+      return AppointmentModel.fromJson(doc.data()!, doc.id);
+    } catch (e) {
+      throw AppointmentException('Failed to fetch appointment: $e');
+    }
+  }
+
+  /// Cancel appointment
+  Future<void> cancelAppointment(String appointmentId) async {
+    try {
+      await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .doc(appointmentId)
+          .update({
+        'status': AppConstants.statusCancelled,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw AppointmentException('Failed to cancel appointment: $e');
+    }
+  }
+
+  /// Update appointment
+  Future<void> updateAppointment(AppointmentModel appointment) async {
+    try {
+      await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .doc(appointment.id)
+          .update(appointment.toJson());
+    } catch (e) {
+      throw AppointmentException('Failed to update appointment: $e');
+    }
+  }
+
+  /// Stream of user's appointments (real-time updates)
+  Stream<List<AppointmentModel>> watchUserAppointments(String userId) {
+    try {
+      return _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .where('userId', isEqualTo: userId)
+          .snapshots()
+          .map((snapshot) {
+            final appointments = snapshot.docs
+                .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
+                .toList();
+            // Sort in app code to avoid composite index
+            appointments.sort((a, b) => b.appointmentDate.compareTo(a.appointmentDate));
+            return appointments;
+          });
+    } catch (e) {
+      throw AppointmentException('Failed to watch appointments: $e');
+    }
+  }
+
+  /// Get doctor's appointments for a specific date
+  Future<List<AppointmentModel>> getDoctorAppointments({
+    required String doctorId,
+    required DateTime date,
+  }) async {
+    try {
+      final startOfDay = DateTime(date.year, date.month, date.day);
+      final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+      // Simplified query to avoid composite index requirement
+      final snapshot = await _firestore
+          .collection(AppConstants.appointmentsCollection)
+          .where('doctorId', isEqualTo: doctorId)
+          .where('appointmentDate',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .where('appointmentDate',
+              isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+          .get();
+
+      // Filter by status in app code to avoid composite index
+      return snapshot.docs
+          .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
+          .where((appointment) => appointment.status == AppConstants.statusScheduled)
+          .toList();
+    } catch (e) {
+      throw AppointmentException('Failed to fetch doctor appointments: $e');
+    }
+  }
+}
+
