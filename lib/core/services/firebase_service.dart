@@ -29,7 +29,11 @@ class FirebaseService {
   /// Enable offline persistence for Firestore
   Future<void> enableOfflinePersistence() async {
     try {
-      // Firestore persistence is enabled by default on mobile platforms
+      // Configure Firestore settings for offline support
+      _firestore.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
       debugPrint('Firestore offline persistence enabled');
     } catch (e) {
       debugPrint('Error enabling offline persistence: $e');

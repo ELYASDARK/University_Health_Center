@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter/foundation.dart';
@@ -104,6 +105,25 @@ class NotificationService {
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
       return null;
+    }
+  }
+
+  /// Save FCM token to user document
+  Future<void> saveFcmTokenToUser(String userId) async {
+    try {
+      final token = await getToken();
+      if (token != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({
+          'fcmToken': token,
+          'tokenUpdatedAt': FieldValue.serverTimestamp(),
+        });
+        debugPrint('FCM token saved for user: $userId');
+      }
+    } catch (e) {
+      debugPrint('Error saving FCM token: $e');
     }
   }
 

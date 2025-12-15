@@ -51,5 +51,9 @@ class AppConstants {
   // Validation
   static const int minPasswordLength = 6;
   static const int minStudentIdLength = 5;
-}
 
+  // Network
+  static const int requestTimeoutSeconds = 30;
+  static const int maxConcurrentAppointments = 5;
+  static const int maxFutureDays = 90;
+}

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/exceptions.dart';
@@ -8,17 +9,64 @@ class AppointmentRepository {
   final FirebaseFirestore _firestore;
 
   AppointmentRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Book a new appointment
   Future<AppointmentModel> bookAppointment(AppointmentModel appointment) async {
     try {
+      // Validation: Check if date is in past
+      if (appointment.appointmentDate.isBefore(DateTime.now())) {
+        throw AppointmentException('Cannot book appointments in the past');
+      }
+
+      // Validation: Check if too far in future
+      final maxDate = DateTime.now().add(
+        Duration(days: AppConstants.maxFutureDays),
+      );
+      if (appointment.appointmentDate.isAfter(maxDate)) {
+        throw AppointmentException(
+          'Cannot book more than ${AppConstants.maxFutureDays} days in advance',
+        );
+      }
+
+      // Validation: Check for conflicting appointments with same doctor
+      final existingAppointments = await getDoctorAppointments(
+        doctorId: appointment.doctorId,
+        date: appointment.appointmentDate,
+      );
+
+      for (var existing in existingAppointments) {
+        // Check for time overlap
+        final existingStart = existing.appointmentDate;
+        final existingEnd = existing.endTime;
+        final newStart = appointment.appointmentDate;
+        final newEnd = appointment.endTime;
+
+        if ((newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart))) {
+          throw AppointmentException(
+            'This time slot is already booked. Please choose another time.',
+          );
+        }
+      }
+
+      // Validation: Limit concurrent appointments per user
+      final userAppointments = await getUpcomingAppointments(
+        appointment.userId,
+      );
+      if (userAppointments.length >= AppConstants.maxConcurrentAppointments) {
+        throw AppointmentException(
+          'Maximum ${AppConstants.maxConcurrentAppointments} upcoming appointments allowed. '
+          'Please cancel one to book another.',
+        );
+      }
+
       final docRef = await _firestore
           .collection(AppConstants.appointmentsCollection)
           .add(appointment.toJson());
 
       return appointment.copyWith(id: docRef.id);
     } catch (e) {
+      if (e is AppointmentException) rethrow;
       throw AppointmentException('Failed to book appointment: $e');
     }
   }
@@ -30,17 +78,27 @@ class AppointmentRepository {
       final snapshot = await _firestore
           .collection(AppConstants.appointmentsCollection)
           .where('userId', isEqualTo: userId)
-          .get();
+          .get()
+          .timeout(
+            Duration(seconds: AppConstants.requestTimeoutSeconds),
+            onTimeout: () => throw TimeoutException('Request timeout'),
+          );
 
       // Sort in app code instead of Firestore query
       final appointments = snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
           .toList();
-      
+
       // Sort by appointment date, most recent first
-      appointments.sort((a, b) => b.appointmentDate.compareTo(a.appointmentDate));
-      
+      appointments.sort(
+        (a, b) => b.appointmentDate.compareTo(a.appointmentDate),
+      );
+
       return appointments;
+    } on TimeoutException {
+      throw NetworkException(
+        'Request timed out. Please check your connection.',
+      );
     } catch (e) {
       throw AppointmentException('Failed to fetch appointments: $e');
     }
@@ -62,7 +120,9 @@ class AppointmentRepository {
       // Filter by status in the app to avoid composite index requirement
       return snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
-          .where((appointment) => appointment.status == AppConstants.statusScheduled)
+          .where(
+            (appointment) => appointment.status == AppConstants.statusScheduled,
+          )
           .toList();
     } catch (e) {
       throw AppointmentException('Failed to fetch upcoming appointments: $e');
@@ -92,9 +152,9 @@ class AppointmentRepository {
           .collection(AppConstants.appointmentsCollection)
           .doc(appointmentId)
           .update({
-        'status': AppConstants.statusCancelled,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'status': AppConstants.statusCancelled,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw AppointmentException('Failed to cancel appointment: $e');
     }
@@ -124,7 +184,9 @@ class AppointmentRepository {
                 .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
                 .toList();
             // Sort in app code to avoid composite index
-            appointments.sort((a, b) => b.appointmentDate.compareTo(a.appointmentDate));
+            appointments.sort(
+              (a, b) => b.appointmentDate.compareTo(a.appointmentDate),
+            );
             return appointments;
           });
     } catch (e) {
@@ -145,20 +207,33 @@ class AppointmentRepository {
       final snapshot = await _firestore
           .collection(AppConstants.appointmentsCollection)
           .where('doctorId', isEqualTo: doctorId)
-          .where('appointmentDate',
-              isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('appointmentDate',
-              isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-          .get();
+          .where(
+            'appointmentDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+          )
+          .where(
+            'appointmentDate',
+            isLessThanOrEqualTo: Timestamp.fromDate(endOfDay),
+          )
+          .get()
+          .timeout(
+            Duration(seconds: AppConstants.requestTimeoutSeconds),
+            onTimeout: () => throw TimeoutException('Request timeout'),
+          );
 
       // Filter by status in app code to avoid composite index
       return snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
-          .where((appointment) => appointment.status == AppConstants.statusScheduled)
+          .where(
+            (appointment) => appointment.status == AppConstants.statusScheduled,
+          )
           .toList();
+    } on TimeoutException {
+      throw NetworkException(
+        'Request timed out. Please check your connection.',
+      );
     } catch (e) {
       throw AppointmentException('Failed to fetch doctor appointments: $e');
     }
   }
 }
-

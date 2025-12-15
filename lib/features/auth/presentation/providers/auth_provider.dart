@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../shared/models/user_model.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -72,6 +73,10 @@ class AuthProvider extends ChangeNotifier {
         _currentUser = user;
         _errorMessage = null;
         notifyListeners();
+        
+        // Save FCM token after successful login
+        NotificationService().saveFcmTokenToUser(user.uid);
+        
         return true;
       },
     );
@@ -115,6 +120,10 @@ class AuthProvider extends ChangeNotifier {
         _currentUser = user;
         _errorMessage = null;
         notifyListeners();
+        
+        // Save FCM token after successful registration
+        NotificationService().saveFcmTokenToUser(user.uid);
+        
         return true;
       },
     );
