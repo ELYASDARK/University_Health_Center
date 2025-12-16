@@ -108,22 +108,33 @@ class AppointmentRepository {
   Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
     try {
       final now = DateTime.now();
-      // Simplified query to avoid requiring composite index
-      // Only query by userId and appointmentDate, then filter by status in code
+      // Simplified query: Only filter by userId to avoid composite index
+      // Filter by date and status in app code
       final snapshot = await _firestore
           .collection(AppConstants.appointmentsCollection)
           .where('userId', isEqualTo: userId)
-          .where('appointmentDate', isGreaterThan: Timestamp.fromDate(now))
-          .orderBy('appointmentDate')
-          .get();
+          .get()
+          .timeout(
+            Duration(seconds: AppConstants.requestTimeoutSeconds),
+            onTimeout: () => throw TimeoutException('Request timeout'),
+          );
 
-      // Filter by status in the app to avoid composite index requirement
-      return snapshot.docs
+      // Filter by date and status, then sort in app code
+      final appointments = snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
-          .where(
-            (appointment) => appointment.status == AppConstants.statusScheduled,
-          )
+          .where((appointment) =>
+              appointment.status == AppConstants.statusScheduled &&
+              appointment.appointmentDate.isAfter(now))
           .toList();
+
+      // Sort by appointment date
+      appointments.sort((a, b) => a.appointmentDate.compareTo(b.appointmentDate));
+
+      return appointments;
+    } on TimeoutException {
+      throw NetworkException(
+        'Request timed out. Please check your connection.',
+      );
     } catch (e) {
       throw AppointmentException('Failed to fetch upcoming appointments: $e');
     }
@@ -203,30 +214,26 @@ class AppointmentRepository {
       final startOfDay = DateTime(date.year, date.month, date.day);
       final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
-      // Simplified query to avoid composite index requirement
+      // Simplified query: Only filter by doctorId to avoid composite index
+      // Filter by date and status in app code
       final snapshot = await _firestore
           .collection(AppConstants.appointmentsCollection)
           .where('doctorId', isEqualTo: doctorId)
-          .where(
-            'appointmentDate',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-          )
-          .where(
-            'appointmentDate',
-            isLessThanOrEqualTo: Timestamp.fromDate(endOfDay),
-          )
           .get()
           .timeout(
             Duration(seconds: AppConstants.requestTimeoutSeconds),
             onTimeout: () => throw TimeoutException('Request timeout'),
           );
 
-      // Filter by status in app code to avoid composite index
+      // Filter by date range and status in app code to avoid composite index
       return snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
-          .where(
-            (appointment) => appointment.status == AppConstants.statusScheduled,
-          )
+          .where((appointment) {
+            final appointmentDate = appointment.appointmentDate;
+            return appointment.status == AppConstants.statusScheduled &&
+                appointmentDate.isAfter(startOfDay) &&
+                appointmentDate.isBefore(endOfDay);
+          })
           .toList();
     } on TimeoutException {
       throw NetworkException(
