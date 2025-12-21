@@ -45,4 +45,3 @@ class DepartmentProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

@@ -55,8 +55,7 @@ class AppointmentModel {
   bool get isCancelled => status == 'cancelled';
 
   /// Get appointment end time
-  DateTime get endTime =>
-      appointmentDate.add(Duration(minutes: duration));
+  DateTime get endTime => appointmentDate.add(Duration(minutes: duration));
 
   /// Create AppointmentModel from JSON
   factory AppointmentModel.fromJson(Map<String, dynamic> json, String id) {
@@ -124,4 +123,3 @@ class AppointmentModel {
     );
   }
 }
-

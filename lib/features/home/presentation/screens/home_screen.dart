@@ -27,8 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadData() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.currentUser != null) {
-      final appointmentProvider =
-          Provider.of<AppointmentProvider>(context, listen: false);
+      final appointmentProvider = Provider.of<AppointmentProvider>(
+        context,
+        listen: false,
+      );
       await appointmentProvider.loadUpcomingAppointments(
         authProvider.currentUser!.uid,
       );
@@ -52,7 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context, user?.fullName ?? 'User', user?.email ?? ''),
+      drawer: _buildDrawer(
+        context,
+        user?.fullName ?? 'User',
+        user?.email ?? '',
+      ),
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: SingleChildScrollView(
@@ -90,10 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'Welcome back,',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -109,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -130,10 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const Text(
           'Quick Actions',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 32),
@@ -221,10 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Text(
               'Upcoming Appointments',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             TextButton(
               onPressed: () => Navigator.pushNamed(context, '/appointments'),
@@ -258,8 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).primaryColor.withOpacity(0.1),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
                       child: Icon(
                         Icons.event,
                         color: Theme.of(context).primaryColor,
@@ -292,9 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -315,10 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Text(
                   email,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
@@ -349,8 +342,10 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Sign Out', style: TextStyle(color: Colors.red)),
             onTap: () async {
-              final authProvider =
-                  Provider.of<AuthProvider>(context, listen: false);
+              final authProvider = Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              );
               await authProvider.signOut();
               if (context.mounted) {
                 Navigator.of(context).pushReplacementNamed('/login');
@@ -362,4 +357,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

@@ -39,6 +39,6 @@ class AuthFailure extends Failure {
 
 /// Validation failure
 class ValidationFailure extends Failure {
-  const ValidationFailure(String message) : super(message, 'validation_failure');
+  const ValidationFailure(String message)
+    : super(message, 'validation_failure');
 }
-

@@ -73,4 +73,3 @@ class DateFormatter {
     return DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
   }
 }
-

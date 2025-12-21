@@ -8,7 +8,7 @@ class DepartmentRepository {
   final FirebaseFirestore _firestore;
 
   DepartmentRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Get all active departments
   Future<List<DepartmentModel>> getAllDepartments() async {
@@ -49,12 +49,13 @@ class DepartmentRepository {
           .collection(AppConstants.departmentsCollection)
           .where('isActive', isEqualTo: true)
           .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map((doc) => DepartmentModel.fromJson(doc.data(), doc.id))
-              .toList());
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => DepartmentModel.fromJson(doc.data(), doc.id))
+                .toList(),
+          );
     } catch (e) {
       throw ServerException('Failed to watch departments: $e');
     }
   }
 }
-

@@ -62,4 +62,3 @@ class DoctorProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

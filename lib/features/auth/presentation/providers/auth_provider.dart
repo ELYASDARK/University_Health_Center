@@ -73,10 +73,10 @@ class AuthProvider extends ChangeNotifier {
         _currentUser = user;
         _errorMessage = null;
         notifyListeners();
-        
+
         // Save FCM token after successful login
         NotificationService().saveFcmTokenToUser(user.uid);
-        
+
         return true;
       },
     );
@@ -120,10 +120,10 @@ class AuthProvider extends ChangeNotifier {
         _currentUser = user;
         _errorMessage = null;
         notifyListeners();
-        
+
         // Save FCM token after successful registration
         NotificationService().saveFcmTokenToUser(user.uid);
-        
+
         return true;
       },
     );
@@ -153,7 +153,7 @@ class AuthProvider extends ChangeNotifier {
   /// Send password reset email
   Future<bool> sendPasswordResetEmail(String email) async {
     _errorMessage = null;
-    
+
     final result = await _authRepository.sendPasswordResetEmail(email);
     return result.fold(
       (failure) {
@@ -190,4 +190,3 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

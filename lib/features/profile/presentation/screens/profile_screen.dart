@@ -14,16 +14,12 @@ class ProfileScreen extends StatelessWidget {
 
     if (user == null) {
       return const Scaffold(
-        body: Center(
-          child: Text('No user data available'),
-        ),
+        body: Center(child: Text('No user data available')),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-      ),
+      appBar: AppBar(title: const Text('My Profile')),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -32,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               ),
               child: Column(
                 children: [
@@ -59,15 +55,14 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     user.email,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(12),
@@ -93,10 +88,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Personal Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   _buildInfoCard(
@@ -173,10 +165,7 @@ class ProfileScreen extends StatelessWidget {
                   // Account actions
                   const Text(
                     'Account',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Card(
@@ -226,11 +215,13 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
                                     child: const Text('Cancel'),
                                   ),
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context, true),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
                                     style: TextButton.styleFrom(
                                       foregroundColor: Colors.red,
                                     ),
@@ -243,7 +234,9 @@ class ProfileScreen extends StatelessWidget {
                             if (shouldLogout == true && context.mounted) {
                               await authProvider.signOut();
                               if (context.mounted) {
-                                Navigator.of(context).pushReplacementNamed('/login');
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed('/login');
                               }
                             }
                           },
@@ -275,13 +268,10 @@ class ProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: Theme.of(context).primaryColor,
-              ),
+              child: Icon(icon, color: Theme.of(context).primaryColor),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -290,10 +280,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -312,4 +299,3 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-

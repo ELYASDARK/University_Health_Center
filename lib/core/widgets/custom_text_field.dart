@@ -77,12 +77,13 @@ class CustomTextField extends StatelessWidget {
             ),
             filled: true,
             fillColor: enabled ? Colors.white : Colors.grey[100],
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
         ),
       ],
     );
   }
 }
-

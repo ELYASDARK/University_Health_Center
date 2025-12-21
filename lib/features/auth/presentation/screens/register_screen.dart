@@ -23,7 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _studentIdController = TextEditingController();
-  
+
   DateTime? _selectedDateOfBirth;
   String _selectedRole = AppConstants.roleStudent;
   bool _obscurePassword = true;
@@ -108,9 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Account'),
-      ),
+      appBar: AppBar(title: const Text('Create Account')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -311,4 +309,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

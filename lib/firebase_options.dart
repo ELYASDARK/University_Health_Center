@@ -46,7 +46,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '728817514552',
     projectId: 'university-health-center-6cc98',
     authDomain: 'university-health-center-6cc98.firebaseapp.com',
-    databaseURL: 'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'university-health-center-6cc98.firebasestorage.app',
     measurementId: 'G-V6P4N97X7L',
   );
@@ -56,7 +57,8 @@ class DefaultFirebaseOptions {
     appId: '1:728817514552:android:f53a9ade0ec2009afb4ecd',
     messagingSenderId: '728817514552',
     projectId: 'university-health-center-6cc98',
-    databaseURL: 'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'university-health-center-6cc98.firebasestorage.app',
   );
 
@@ -65,7 +67,8 @@ class DefaultFirebaseOptions {
     appId: '1:728817514552:ios:f438f51317281db5fb4ecd',
     messagingSenderId: '728817514552',
     projectId: 'university-health-center-6cc98',
-    databaseURL: 'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'university-health-center-6cc98.firebasestorage.app',
     iosBundleId: 'com.example.universityHealthCenter',
   );
@@ -75,7 +78,8 @@ class DefaultFirebaseOptions {
     appId: '1:728817514552:ios:f438f51317281db5fb4ecd',
     messagingSenderId: '728817514552',
     projectId: 'university-health-center-6cc98',
-    databaseURL: 'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'university-health-center-6cc98.firebasestorage.app',
     iosBundleId: 'com.example.universityHealthCenter',
   );
@@ -86,7 +90,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '728817514552',
     projectId: 'university-health-center-6cc98',
     authDomain: 'university-health-center-6cc98.firebaseapp.com',
-    databaseURL: 'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://university-health-center-6cc98-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'university-health-center-6cc98.firebasestorage.app',
     measurementId: 'G-161DZ3PBS4',
   );

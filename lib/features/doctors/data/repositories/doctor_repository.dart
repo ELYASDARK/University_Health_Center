@@ -8,13 +8,14 @@ class DoctorRepository {
   final FirebaseFirestore _firestore;
 
   DoctorRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Get all doctors
   Future<List<DoctorModel>> getAllDoctors() async {
     try {
-      final snapshot =
-          await _firestore.collection(AppConstants.doctorsCollection).get();
+      final snapshot = await _firestore
+          .collection(AppConstants.doctorsCollection)
+          .get();
 
       return snapshot.docs
           .map((doc) => DoctorModel.fromJson(doc.data(), doc.id))
@@ -63,12 +64,13 @@ class DoctorRepository {
           .collection(AppConstants.doctorsCollection)
           .where('departmentId', isEqualTo: departmentId)
           .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map((doc) => DoctorModel.fromJson(doc.data(), doc.id))
-              .toList());
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => DoctorModel.fromJson(doc.data(), doc.id))
+                .toList(),
+          );
     } catch (e) {
       throw ServerException('Failed to watch doctors: $e');
     }
   }
 }
-

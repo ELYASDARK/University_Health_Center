@@ -17,10 +17,7 @@ class LoadingWidget extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ],
@@ -28,4 +25,3 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 }
-

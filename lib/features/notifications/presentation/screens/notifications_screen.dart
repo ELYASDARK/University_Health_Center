@@ -7,9 +7,7 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-      ),
+      appBar: AppBar(title: const Text('Notifications')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -33,10 +31,7 @@ class NotificationsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 'You\'ll receive notifications here for:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 16),
               _buildNotificationItem(
@@ -74,17 +69,8 @@ class NotificationsScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: Colors.blue),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
       ],
     );
   }
 }
-
-
-

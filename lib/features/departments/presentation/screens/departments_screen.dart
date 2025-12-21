@@ -24,9 +24,7 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Departments'),
-      ),
+      appBar: AppBar(title: const Text('Departments')),
       body: Consumer<DepartmentProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -34,9 +32,7 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
           }
 
           if (provider.errorMessage != null) {
-            return Center(
-              child: Text(provider.errorMessage!),
-            );
+            return Center(child: Text(provider.errorMessage!));
           }
 
           if (provider.departments.isEmpty) {
@@ -73,9 +69,9 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.1),
+                                color: Theme.of(
+                                  context,
+                                ).primaryColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
@@ -125,13 +121,15 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
                             runSpacing: 8,
                             children: department.services
                                 .take(3)
-                                .map((service) => Chip(
-                                      label: Text(
-                                        service,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      backgroundColor: Colors.grey[100],
-                                    ))
+                                .map(
+                                  (service) => Chip(
+                                    label: Text(
+                                      service,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    backgroundColor: Colors.grey[100],
+                                  ),
+                                )
                                 .toList(),
                           ),
                         ],
@@ -147,4 +145,3 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
     );
   }
 }
-

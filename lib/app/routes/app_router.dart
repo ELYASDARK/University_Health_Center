@@ -15,7 +15,8 @@ class AppRouter {
     return GoRouter(
       initialLocation: isAuthenticated ? '/home' : '/login',
       redirect: (context, state) {
-        final isLoginRoute = state.matchedLocation == '/login' ||
+        final isLoginRoute =
+            state.matchedLocation == '/login' ||
             state.matchedLocation == '/register' ||
             state.matchedLocation == '/forgot-password';
 
@@ -47,10 +48,7 @@ class AppRouter {
         ),
 
         // Main app routes
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeScreen(),
-        ),
+        GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
         GoRoute(
           path: '/departments',
           builder: (context, state) => const DepartmentsScreen(),
@@ -84,4 +82,3 @@ class AppRouter {
     );
   }
 }
-

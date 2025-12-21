@@ -19,17 +19,17 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DoctorProvider>(context, listen: false)
-          .loadDoctorsByDepartment(widget.departmentId);
+      Provider.of<DoctorProvider>(
+        context,
+        listen: false,
+      ).loadDoctorsByDepartment(widget.departmentId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Doctor'),
-      ),
+      appBar: AppBar(title: const Text('Select Doctor')),
       body: Consumer<DoctorProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -37,9 +37,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
           }
 
           if (provider.errorMessage != null) {
-            return Center(
-              child: Text(provider.errorMessage!),
-            );
+            return Center(child: Text(provider.errorMessage!));
           }
 
           if (provider.doctors.isEmpty) {
@@ -136,4 +134,3 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
     );
   }
 }
-

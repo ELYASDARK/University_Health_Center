@@ -33,7 +33,9 @@ class NotificationService {
 
   /// Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -61,7 +63,8 @@ class NotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidChannel);
   }
 
@@ -113,13 +116,9 @@ class NotificationService {
     try {
       final token = await getToken();
       if (token != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({
-          'fcmToken': token,
-          'tokenUpdatedAt': FieldValue.serverTimestamp(),
-        });
+        await FirebaseFirestore.instance.collection('users').doc(userId).update(
+          {'fcmToken': token, 'tokenUpdatedAt': FieldValue.serverTimestamp()},
+        );
         debugPrint('FCM token saved for user: $userId');
       }
     } catch (e) {
@@ -244,4 +243,3 @@ class NotificationService {
     await _localNotifications.cancelAll();
   }
 }
-

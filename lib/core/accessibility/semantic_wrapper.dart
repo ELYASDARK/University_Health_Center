@@ -37,7 +37,7 @@ class SemanticWrapper extends StatelessWidget {
   final VoidCallback? onDecrease;
 
   const SemanticWrapper({
-    Key? key,
+    super.key,
     required this.child,
     this.label,
     this.hint,
@@ -58,7 +58,7 @@ class SemanticWrapper extends StatelessWidget {
     this.decreasedValue,
     this.onIncrease,
     this.onDecrease,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +97,11 @@ class SemanticNavigationItem extends StatelessWidget {
   final bool isSelected;
 
   const SemanticNavigationItem({
-    Key? key,
+    super.key,
     required this.child,
     required this.destination,
     this.isSelected = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,11 +122,11 @@ class SemanticStatus extends StatelessWidget {
   final String? description;
 
   const SemanticStatus({
-    Key? key,
+    super.key,
     required this.child,
     required this.status,
     this.description,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +146,13 @@ class SemanticListItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SemanticListItem({
-    Key? key,
+    super.key,
     required this.child,
     required this.label,
     required this.index,
     required this.totalItems,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +173,12 @@ class SemanticRating extends StatelessWidget {
   final bool isInteractive;
 
   const SemanticRating({
-    Key? key,
+    super.key,
     required this.child,
     required this.rating,
     this.maxRating = 5.0,
     this.isInteractive = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -198,8 +198,7 @@ class SemanticLoading extends StatelessWidget {
   final Widget child;
   final String? message;
 
-  const SemanticLoading({Key? key, required this.child, this.message})
-    : super(key: key);
+  const SemanticLoading({super.key, required this.child, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -216,10 +215,10 @@ class SemanticError extends StatelessWidget {
   final String errorMessage;
 
   const SemanticError({
-    Key? key,
+    super.key,
     required this.child,
     required this.errorMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -237,10 +236,10 @@ class SemanticSuccess extends StatelessWidget {
   final String successMessage;
 
   const SemanticSuccess({
-    Key? key,
+    super.key,
     required this.child,
     required this.successMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -259,10 +258,10 @@ class SemanticAnnouncement extends StatelessWidget {
   final Widget child;
 
   const SemanticAnnouncement({
-    Key? key,
+    super.key,
     required this.announcement,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -283,11 +282,11 @@ class SemanticImage extends StatelessWidget {
   final bool isDecorative;
 
   const SemanticImage({
-    Key? key,
+    super.key,
     required this.child,
     required this.altText,
     this.isDecorative = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

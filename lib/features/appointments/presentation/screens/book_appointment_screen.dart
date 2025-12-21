@@ -26,7 +26,7 @@ class BookAppointmentScreen extends StatefulWidget {
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reasonController = TextEditingController();
-  
+
   DateTime _selectedDate = DateTime.now();
   DateTime _focusedDate = DateTime.now();
   TimeOfDay? _selectedTime;
@@ -64,8 +64,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final appointmentProvider =
-        Provider.of<AppointmentProvider>(context, listen: false);
+    final appointmentProvider = Provider.of<AppointmentProvider>(
+      context,
+      listen: false,
+    );
 
     if (authProvider.currentUser == null) return;
 
@@ -147,9 +149,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book Appointment'),
-      ),
+      appBar: AppBar(title: const Text('Book Appointment')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -190,9 +190,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             shape: BoxShape.circle,
                           ),
                           todayDecoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .primaryColor
-                                .withOpacity(0.3),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.3),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -281,4 +281,3 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     );
   }
 }
-

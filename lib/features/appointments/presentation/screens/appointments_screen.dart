@@ -37,8 +37,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   Future<void> _loadAppointments() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.currentUser != null) {
-      final appointmentProvider =
-          Provider.of<AppointmentProvider>(context, listen: false);
+      final appointmentProvider = Provider.of<AppointmentProvider>(
+        context,
+        listen: false,
+      );
       await appointmentProvider.loadUserAppointments(
         authProvider.currentUser!.uid,
       );
@@ -66,9 +68,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
           }
 
           if (provider.errorMessage != null) {
-            return Center(
-              child: Text(provider.errorMessage!),
-            );
+            return Center(child: Text(provider.errorMessage!));
           }
 
           return TabBarView(
@@ -102,10 +102,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     );
   }
 
-  Widget _buildAppointmentsList(
-    List appointments,
-    String emptyMessage,
-  ) {
+  Widget _buildAppointmentsList(List appointments, String emptyMessage) {
     if (appointments.isEmpty) {
       return EmptyStateWidget(
         message: emptyMessage,
@@ -137,8 +134,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(appointment.status)
-                                .withOpacity(0.1),
+                            color: _getStatusColor(
+                              appointment.status,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -211,7 +209,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: _getStatusColor(status).withOpacity(0.1),
+        color: _getStatusColor(status).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -298,9 +296,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -322,10 +318,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final provider =
-                  Provider.of<AppointmentProvider>(context, listen: false);
+              final provider = Provider.of<AppointmentProvider>(
+                context,
+                listen: false,
+              );
               final success = await provider.cancelAppointment(appointmentId);
-              
+
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -347,4 +345,3 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     );
   }
 }
-

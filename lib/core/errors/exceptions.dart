@@ -38,4 +38,3 @@ class CacheException extends AppException {
 class ValidationException extends AppException {
   ValidationException(String message) : super(message, 'validation_error');
 }
-
