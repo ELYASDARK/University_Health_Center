@@ -122,13 +122,17 @@ class AppointmentRepository {
       // Filter by date and status, then sort in app code
       final appointments = snapshot.docs
           .map((doc) => AppointmentModel.fromJson(doc.data(), doc.id))
-          .where((appointment) =>
-              appointment.status == AppConstants.statusScheduled &&
-              appointment.appointmentDate.isAfter(now))
+          .where(
+            (appointment) =>
+                appointment.status == AppConstants.statusScheduled &&
+                appointment.appointmentDate.isAfter(now),
+          )
           .toList();
 
       // Sort by appointment date
-      appointments.sort((a, b) => a.appointmentDate.compareTo(b.appointmentDate));
+      appointments.sort(
+        (a, b) => a.appointmentDate.compareTo(b.appointmentDate),
+      );
 
       return appointments;
     } on TimeoutException {
